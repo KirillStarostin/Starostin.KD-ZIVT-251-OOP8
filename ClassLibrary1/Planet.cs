@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Starostin.KD_ZIVT_251_OOP8
+﻿namespace ClassLibrary1
 {
+    // Интерфейс
     interface IPlanet
     {
-
+        void Info();
     }
+    // Класс планета
     public abstract class Planet : IPlanet
     {
         // Поля
@@ -40,9 +38,9 @@ namespace Starostin.KD_ZIVT_251_OOP8
             Console.WriteLine($"Наименование {Name} | Радиус = {Radius} | Вес = {Weight}");
         }
 
-        private bool IsValidMassAndRadius()
+        private bool IsValidMassAndRadius(int weight, int radius)
         {
-            return Weight > 0 && Radius > 0;
+            return weight > 0 && radius > 0;
         }
 
         protected void Explosion()
@@ -63,18 +61,19 @@ namespace Starostin.KD_ZIVT_251_OOP8
         }
 
         // Конструктор с параметрами
-        public Planet(string name, int radius, int weght)
+        public Planet(string name, int radius, int weight)
         {
-            if (IsValidMassAndRadius())
+            if (IsValidMassAndRadius(weight, radius))
             {
                 Name = name;
                 Radius = radius;
-                Weight = weght;
+                Weight = weight;
             }
             else { Console.WriteLine("Ошибка: Некорректные значения радиуса и/или веса"); }
         }
     }
 
+    // Singleton классы всех планет солнечной системы
     public sealed class Earth : Planet
     {
         private static readonly Earth _instance = new Earth();
