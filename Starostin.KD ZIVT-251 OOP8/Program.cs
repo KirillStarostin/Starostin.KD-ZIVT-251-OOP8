@@ -1,4 +1,7 @@
 ﻿using ClassLibrary1;
+using System;
+using System.Linq;
+using System.Numerics;
 using System.Reflection;
 
 // Метод вывода информации о полях, свойствах и методах класса
@@ -44,6 +47,67 @@ static void PrintMembers(Type t)
     }
 }
 
+// Метод чтения полей и свойств экземпляра
+static void ReadFieldsAndProps(object obj)
+{
+    Type t = obj.GetType();
+    Console.WriteLine($"\nЧТЕНИЕ {t.Name}");
+
+    // Чтение полей
+    Console.WriteLine("ПОЛЯ");
+    foreach (FieldInfo f in t.GetFields(
+        BindingFlags.Public | BindingFlags.NonPublic |
+        BindingFlags.Instance | BindingFlags.Static))
+    {
+        object value = f.GetValue(obj);
+        Console.WriteLine($"{f.Name,-10} = {value}");
+    }
+
+    // Чтение свойств
+    Console.WriteLine("СВОЙСТВА");
+    foreach (PropertyInfo p in t.GetProperties(
+        BindingFlags.Public | BindingFlags.NonPublic |
+        BindingFlags.Instance | BindingFlags.Static))
+    {
+        if (p.GetMethod == null) continue;
+        if (p.GetIndexParameters().Length > 0) continue;
+
+        object value = p.GetValue(obj);
+        Console.WriteLine($"{p.Name,-10} = {value}");
+    }
+}
+
+// Метод вывода информации о классе
+static void LoadAssemblyAndInspect(Type t)
+{
+    Console.WriteLine("\nЗАГРУЗКА DLL");
+    Assembly asm = t.Assembly;
+    Console.WriteLine($"Сборка: {asm.FullName}");
+
+    // Получить конкретный класс
+    Console.WriteLine($"\nИнформация о {t.FullName}\n");
+    Console.WriteLine($"Базовый класс: {t.BaseType?.Name}");
+    Console.WriteLine($"Абстрактный:   {t.IsAbstract}");
+    Console.WriteLine($"Запечатан:     {t.IsSealed}");
+    Console.WriteLine($"Интерфейсы:    {string.Join(", ", t.GetInterfaces().Select(i => i.Name))}");
+
+    // Найти всех наследников Planet
+    Console.WriteLine("\nНаследники");
+    var subclasses = asm.GetTypes()
+        .Where(x => x.IsSubclassOf(t) && !x.IsAbstract)
+        .OrderBy(x => x.Name);
+
+    if (!subclasses.Any())
+    {
+        Console.WriteLine("Наследников нет");
+    }
+    else
+    {
+        foreach (Type s in subclasses)
+            Console.WriteLine($"  {s.Name}");
+    }
+}
+
 // Вывод информации о полях, свойствах и методах всех классов
 PrintMembers(typeof(Planet));
 PrintMembers(typeof(Earth));
@@ -55,6 +119,53 @@ PrintMembers(typeof(Saturn));
 PrintMembers(typeof(Uran));
 PrintMembers(typeof(Neptun));
 
-// Работа метода Info
+// Чтение полей и свойств экземпляра earth
 Earth earth = new Earth();
-earth.Info();
+Console.WriteLine($"\n\n\nЧтение полей и свойств {earth.Name}");
+ReadFieldsAndProps(earth);
+Console.WriteLine();
+
+// Изменение поля
+Planet planet = new Planet();
+Console.WriteLine($"\nИзменение поля {planet.Name}");
+Type t = typeof(Planet);
+FieldInfo nameField = t.GetField("Name");
+nameField.SetValue(planet, "Pluton");
+planet.Info();
+
+// Изменение свойства
+Console.WriteLine($"\nИзменение свойства {planet.Name}");
+PropertyInfo nameProp = t.GetProperty("Name2");
+nameProp.SetValue(planet, "Pluton-2");
+Console.WriteLine($"Новое имя = {planet.Name2}");
+
+// Вызов методов
+Console.WriteLine($"\nВызов метода уничтожения {t.Name}");
+MethodInfo explosion = t.GetMethod("Explosion",
+        BindingFlags.NonPublic | BindingFlags.Instance);
+explosion.Invoke(planet, null);
+planet.Info();
+
+// Вызов конструкторов
+Console.WriteLine("\nВызов конструкторов Planet");
+
+// Конструктор без параметров
+ConstructorInfo ctorDefault = t.GetConstructor(Type.EmptyTypes);
+Planet p1 = (Planet)ctorDefault.Invoke(null);
+Console.WriteLine("Без параметров:");
+p1.Info();
+
+// Конструктор с параметрами
+ConstructorInfo ctorArgs = t.GetConstructor(new[]
+{
+        typeof(string), typeof(int), typeof(int)
+    });
+Planet p2 = (Planet)ctorArgs.Invoke(new object[]
+{
+        "Кириллий", 185, 60
+});
+Console.WriteLine("С параметрами:");
+p2.Info();
+
+LoadAssemblyAndInspect(typeof(Planet));
+LoadAssemblyAndInspect(typeof(Earth));

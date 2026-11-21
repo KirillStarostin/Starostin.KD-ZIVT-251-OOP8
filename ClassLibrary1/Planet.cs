@@ -6,7 +6,7 @@
         void Info();
     }
     // Класс планета
-    public abstract class Planet : IPlanet
+    public class Planet : IPlanet
     {
         // Поля
         public string Name;
