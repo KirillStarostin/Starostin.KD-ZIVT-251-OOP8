@@ -119,11 +119,15 @@ PrintMembers(typeof(Saturn));
 PrintMembers(typeof(Uran));
 PrintMembers(typeof(Neptun));
 
+Console.ReadKey();
+
 // Чтение полей и свойств экземпляра earth
 Earth earth = new Earth();
 Console.WriteLine($"\n\n\nЧтение полей и свойств {earth.Name}");
 ReadFieldsAndProps(earth);
 Console.WriteLine();
+
+Console.ReadKey();
 
 // Изменение поля
 Planet planet = new Planet();
@@ -133,11 +137,15 @@ FieldInfo nameField = t.GetField("Name");
 nameField.SetValue(planet, "Pluton");
 planet.Info();
 
+Console.ReadKey();
+
 // Изменение свойства
 Console.WriteLine($"\nИзменение свойства {planet.Name}");
 PropertyInfo nameProp = t.GetProperty("Name2");
 nameProp.SetValue(planet, "Pluton-2");
 Console.WriteLine($"Новое имя = {planet.Name2}");
+
+Console.ReadKey();
 
 // Вызов методов
 Console.WriteLine($"\nВызов метода уничтожения {t.Name}");
@@ -145,6 +153,8 @@ MethodInfo explosion = t.GetMethod("Explosion",
         BindingFlags.NonPublic | BindingFlags.Instance);
 explosion.Invoke(planet, null);
 planet.Info();
+
+Console.ReadKey();
 
 // Вызов конструкторов
 Console.WriteLine("\nВызов конструкторов Planet");
@@ -167,5 +177,9 @@ Planet p2 = (Planet)ctorArgs.Invoke(new object[]
 Console.WriteLine("С параметрами:");
 p2.Info();
 
+Console.ReadKey();
+
 LoadAssemblyAndInspect(typeof(Planet));
 LoadAssemblyAndInspect(typeof(Earth));
+
+Console.ReadKey();
